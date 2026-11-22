@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEGA TECH | نظام ميجا تك المتكامل</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            color: #2f3640;
+            min-height: 100vh;
+        }
+
+        /* =========================================
+           1. تنسيقات شاشات الدخول وإنشاء الحساب (Auth)
+           ========================================= */
+        .auth-screen {
+            background: rgb(104, 104, 104);
+            min-height: 100vh;
+            width: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .auth-screen * {
+            font-family: 'Changa', sans-serif;
+        }
+
+        .auth-container {
+            background-color: rgba(255, 228, 196, 0.619);
+            color: rgba(0, 150, 230, 0.804);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgb(0, 18, 136);
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .auth-container h1 {
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .auth-container p {
+            margin-bottom: 15px;
+            color: #1e272e;
+            font-weight: bold;
+        }
+
+        .auth-screen h2 {
+            background-color: rgba(255, 228, 196, 0.781);
+            box-shadow: 0 0 3px 2px rgb(0, 255, 200), 0 0 3px 3px rgb(8, 0, 255);
+            padding: 10px 35px;
+            color: rgba(0, 150, 230, 0.8);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .auth-container input {
+            background-color: #ffffffcf;
+            color: rgb(0, 150, 230);
+            outline: none;
+            border: 2px solid rgb(24, 97, 137);
+            padding: 10px;
+            border-radius: 5px;
+            transition: 0.4s;
+            width: 100%;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .auth-container input:focus {
+            box-shadow: 0 0 2px 1px #00ffe5, 0 0 2px 2px #00ffff;   
+        }
+
+        .auth-container button {
+            margin-top: 7px;
+            padding: 10px 25px;
+            background-color: rgba(0, 179, 255, 0.853);
+            color: rgba(0, 115, 177, 0.874);
+            border-radius: 10px;
+            border: 2px black solid;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .auth-container button:active {
+            border-radius: 15px;
+        }
+
+        /* =========================================
+           2. تنسيقات النظام الرئيسي (Index / Dashboard)
+           ========================================= */
+        #index-view {
+            display: none;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #1e272e;
+            color: #ffffff;
+            padding: 20px 10px;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        .brand h2 span {
+            color: #0fbcf9;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .nav-links li:hover,
+        .nav-links li.active {
+            background-color: #0984e3;
+        }
+
+        .main {
+            flex: 1;
+            padding: 25px;
+            overflow-x: auto;
+        }
+
+        .header {
+            background-color: #ffffff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab {
+            display: none;
+        }
+
+        .tab.active {
+            display: block;
+        }
+
+        .card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h4 {
+            margin-bottom: 15px;
+            color: #0984e3;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            border-right: 5px solid #0984e3;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .grid-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        #index-view input,
+        #index-view select {
+            padding: 10px;
+            border: 1px solid #dcdde1;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .search {
+            margin-bottom: 10px;
+        }
+
+        #index-view button,
+        .file-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #ffffff;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .file-btn input {
+            display: none;
+        }
+
+        .btn-blue { background-color: #0984e3; }
+        .btn-green { background-color: #27ae60; }
+        .btn-orange { background-color: #f39c12; }
+        .btn-red { background-color: #e74c3c; }
+
+        .btn-sm {
+            padding: 4px 10px;
+            margin: 0 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        th,
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .ok { background-color: #e8f8f5; color: #27ae60; }
+        .low { background-color: #fef5e7; color: #f39c12; }
+        .out { background-color: #fdedec; color: #e74c3c; }
+
+        button.menu-toggle {
+            display: none;
+            background-color: transparent;
+            border: 2px solid #485460;
+            color: #ffffff;
+            font-size: 24px;
+            padding: 4px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button.menu-toggle:hover {
+            border-color: #0fbcf9;
+            color: #0fbcf9;
+        }
+
+        button.menu-toggle:active {
+            border-radius: 15px;
+        }
+
+        /* =========================================
+           3. التجاوب مع الهواتف المحمولة (Mobile)
+           ========================================= */
+
+/* تنسيق الزر: ثابت بدون دوران، يضيء باللون السماوي فقط */
+button.menu-toggle {
+    display: none;
+    background-color: transparent;
+    border: 2px solid #485460;
+    color: #ffffff;
+    font-size: 24px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, border-radius 0.2s ease;
+}
+
+button.menu-toggle:hover,
+button.menu-toggle.active {
+    border-color: #0fbcf9;
+    color: #0fbcf9;
+}
+
+button.menu-toggle:active {
+    border-radius: 15px;
+}
+
+/* تنسيق الموبايل والقائمة المنسدلة */
+@media (max-width: 768px) {
+    #index-view {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 15px 20px;
+    }
+
+    .sidebar-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .brand {
+        text-align: right;
+        padding-bottom: 0;
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    button.menu-toggle {
+        display: block;
+    }
+    
+    /* حركة انسياب القائمة */
+    .nav-links {
+        display: block;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease, opacity 0.25s ease;
+    }
+
+    .nav-links.show {
+        max-height: 450px;
+        opacity: 1;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #333;
+    }
+}
+
+
+
+    </style>
+
+</head>
+<body>
+
+    <!-- ========================================== -->
+    <!-- 1. شاشة إنشاء حساب جديد (New Account)      -->
+    <!-- ========================================== -->
+    <div id="new-account-view" class="auth-screen">
+        <div class="auth-container">
+            <h1>MEGA_TECH<br>Storeroom<br>New Password</h1>
+            <input id="new-password" type="password" placeholder="أدخل كلمة المرور الجديدة...">
+            <button onclick="createAccount()">إنشاء كلمة المرور</button>
+        </div>
+    </div>
+    <!-- ========================================== -->
+    <!-- 2. شاشة تسجيل الدخول (Login)               -->
+    <!-- ========================================== -->
+    <div id="login-view" class="auth-screen">
+        <h2>MEGA_TECH</h2>
+        <div class="auth-container">
+            <h1>مخازن ميجاتك</h1>
+            <p>Welcome to our MEGA TECH</p>
+            <h1>Login</h1>
+            <input id="login-password" type="password" placeholder="Enter your password...">
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. شاشة النظام الرئيسي (Index / Dashboard) -->
+    <!-- ========================================== -->
+    <div id="index-view">
+        <!-- <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="brand">
+                    <h2>MEGA <span>TECH</span></h2>
+                    <small>للهندسة والتجارة</small>
+                </div>
+                <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            </div>
+            <ul class="nav-links" id="nav-links">
+                <li class="active" onclick="showTab('dash', this); closeMenu()">📊 لوحة التحكم</li>
+                <li onclick="showTab('inv', this); closeMenu()">📦 المخازن (السرداب)</li>
+                <li onclick="showTab('sales', this); closeMenu()">🧾 المبيعات والصرف</li>
+                <li onclick="showTab('emp', this); closeMenu()">👥 شؤون الموظفين</li>
+                <li onclick="showTab('backup', this); closeMenu()">💾 النسخ الاحتياطي</li>
+                <li onclick="logout()" style="color: #ef4444; margin-top: 20px;">🚪 تسجيل الخروج</li>
+            </ul>
+        </aside>
+
+        <div class="main">
+            <div class="header">
+                <h3>نظام الإدارة المتكامل - شركة ميجا تك للهندسة والتجارة</h3>
+                <span id="today"></span>
+            </div>
+
+            <div id="dash" class="tab active">
+                <div class="stats">
+                    <div class="stat-box"><small>أصناف المخزن</small><h2 id="s-items">0</h2></div>
+                    <div class="stat-box"><small>قيمة المخزن</small><h2 id="s-val">0 ج.م</h2></div>
+                    <div class="stat-box"><small>إجمالي المبيعات</small><h2 id="s-sales">0 ج.م</h2></div>
+                    <div class="stat-box"><small>صافي الرواتب</small><h2 id="s-sal">0 ج.م</h2></div>
+                </div>
+                <div class="card">
+                    <h4>⚠️ تنبيهات النواقص (5 قطع أو أقل)</h4>
+                    <table>
+                        <thead><tr><th>الصنف</th><th>المكان</th><th>الدرج</th><th>الكمية</th></tr></thead>
+                        <tbody id="t-low"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="inv" class="tab">
+                <div class="card">
+                    <h4>➕ إضافة صنف للمخزن</h4>
+                    <form id="f-inv" class="grid-form">
+                        <input type="text" id="i-name" placeholder="اسم الصنف / المعدة" required>
+                        <select id="i-loc">
+                            <option value="مخزن السرداب">مخزن السرداب</option>
+                            <option value="المخزن الرئيسي">المخزن الرئيسي</option>
+                        </select>
+                        <input type="text" id="i-shelf" placeholder="رقم الدرج / الرف" required>
+                        <input type="number" id="i-qty" placeholder="الكمية" min="0" required>
+                        <input type="number" id="i-price" placeholder="سعر الوحدة (ج.م)" min="0" required>
+                        <button type="submit" class="btn-blue">حفظ الصنف</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h4>📋 جرد المخازن</h4>
+                    <input type="text" id="q-inv" class="search" placeholder="🔍 بحث باسم الصنف أو الدرج..." onkeyup="render()">
+                    <table>
+                        <thead><tr><th>الصنف</th><th>المكان</th><th>الدرج</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                        <tbody id="t-inv"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="sales" class="tab">
+                <div class="card">
+                    <h4>🧾 صرف / بيع من المخزن</h4>
+                    <form id="f-sale" class="grid-form">
+                        <select id="s-select" required></select>
+                        <input type="number" id="s-qty" placeholder="الكمية المصروفة" min="1" required>
+                        <input type="text" id="s-client" placeholder="اسم العميل / المشروع" required>
+                        <input type="tel" id="s-phone" placeholder="رقم تليفون العميل">
+                        <button type="submit" class="btn-blue">تأكيد الصرف</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h4>📜 سجل الصرف والمبيعات</h4>
+                    <table>
+                        <thead><tr><th>رقم الفاتورة</th><th>التاريخ</th><th>الصنف</th><th>العميل</th><th>رقم التليفون</th><th>الكمية</th><th>الإجمالي</th><th>حذف</th></tr></thead>
+                        <tbody id="t-sale"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="emp" class="tab">
+                <div class="card">
+                    <h4>➕ إضافة موظف جديد</h4>
+                    <form id="f-emp" class="grid-form">
+                        <input type="text" id="e-name" placeholder="الاسم بالكامل" required>
+                        <input type="text" id="e-nid" placeholder="الرقم القومي (14 رقم)" maxlength="14" required>
+                        <input type="tel" id="e-phone" placeholder="رقم الهاتف" required>
+                        <input type="text" id="e-addr" placeholder="العنوان" required>
+                        <input type="text" id="e-role" placeholder="الوظيفة" required>
+                        <input type="number" id="e-sal" placeholder="الراتب الأساسي" min="0" required>
+                        <input type="number" id="e-abs" placeholder="أيام الغياب" value="0" min="0" max="30" required>
+                        <button type="submit" class="btn-blue">حفظ الموظف</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h4>👥 كشف الموظفين والرواتب</h4>
+                    <table>
+                        <thead><tr><th>الموظف</th><th>بيانات التواصل</th><th>الوظيفة</th><th>الأساسي</th><th>الغياب</th><th>الخصم</th><th>الصافي</th><th>حذف</th></tr></thead>
+                        <tbody id="t-emp"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="backup" class="tab">
+                <div class="card">
+                    <h4>💾 النسخ الاحتياطي</h4>
+                    <button class="btn-blue" onclick="exportData()">⬇️ تحميل نسخة احتياطية</button>
+                    <label class="btn-green file-btn">⬆️ استعادة نسخة<input type="file" accept=".json" onchange="importData(event)"></label>
+                </div>
+            </div>
+        </div> -->
+    
+            <aside class="sidebar">
+        <div class="sidebar-top">
+            <div class="brand">
+                <h2>MEGA <span>TECH</span></h2>
+                <small>للهندسة والتجارة</small>
+            </div>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+        </div>
+        <ul class="nav-links" id="nav-links">
+            <li class="active" onclick="showTab('dash', this); closeMenu()">📊 لوحة التحكم</li>
+            <li onclick="showTab('inv', this); closeMenu()">📦 المخازن (السرداب)</li>
+            <li onclick="showTab('sales', this); closeMenu()">🧾 المبيعات والصرف</li>
+            <li onclick="showTab('emp', this); closeMenu()">👥 شؤون الموظفين</li>
+            <li onclick="showTab('backup', this); closeMenu()">💾 النسخ الاحتياطي</li>
+        </ul>
+            </aside>
+            <div class="main">
+        <div class="header">
+            <h3>نظام الإدارة المتكامل - شركة ميجا تك للهندسة والتجارة</h3>
+            <span id="today"></span>
+        </div>
+
+        <div id="dash" class="tab active">
+            <div class="stats">
+                <div class="stat-box"><small>أصناف المخزن</small><h2 id="s-items">0</h2></div>
+                <div class="stat-box"><small>قيمة المخزن</small><h2 id="s-val">0 ج.م</h2></div>
+                <div class="stat-box"><small>إجمالي المبيعات</small><h2 id="s-sales">0 ج.م</h2></div>
+                <div class="stat-box"><small>صافي الرواتب</small><h2 id="s-sal">0 ج.م</h2></div>
+            </div>
+            <div class="card">
+                <h4>⚠️ تنبيهات النواقص (يساوي 5 قطع)</h4>
+                <table>
+                    <thead><tr><th>الصنف</th><th>المكان</th><th>الدرج</th><th>الكمية</th></tr></thead>
+                    <tbody id="t-low"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="inv" class="tab">
+            <div class="card">
+                <h4>➕ إضافة صنف للمخزن</h4>
+                <form id="f-inv" class="grid-form">
+                    <input type="text" id="i-name" placeholder="اسم الصنف / المعدة" required>
+                    <select id="i-loc">
+                        <option value="مخزن السرداب">مخزن السرداب</option>
+                        <option value="المخزن الرئيسي">المخزن الرئيسي</option>
+                    </select>
+                    <input type="text" id="i-shelf" placeholder="رقم الدرج / الرف" required>
+                    <input type="number" id="i-qty" placeholder="الكمية" min="0" required>
+                    <input type="number" id="i-price" placeholder="سعر الوحدة (ج.م)" min="0" required>
+                    <button type="submit" class="btn-blue">حفظ الصنف</button>
+                </form>
+            </div>
+            <div class="card">
+                <h4>📋 جرد المخازن</h4>
+                <input type="text" id="q-inv" class="search" placeholder="🔍 بحث باسم الصنف أو الدرج..." onkeyup="render()">
+                <table>
+                    <!-- تم إرجاع أعمدة المخزن الأصلية الصحيحة هنا -->
+                    <thead><tr><th>الصنف</th><th>المكان</th><th>الدرج</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                    <tbody id="t-inv"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="sales" class="tab">
+            <div class="card">
+                <h4>🧾 صرف / بيع من المخزن</h4>
+                <form id="f-sale" class="grid-form">
+                    <select id="s-select" required></select>
+                    <input type="number" id="s-qty" placeholder="الكمية المصروفة" min="1" required>
+                    <input type="text" id="s-client" placeholder="اسم العميل / المشروع" required>
+                    <!-- تم توحيد اسم الحقل ليكون s-phone ليتطابق مع الجافاسكريبت -->
+                    <input type="tel" id="s-phone" placeholder="رقم تليفون العميل">
+                    <button type="submit" class="btn-blue">تأكيد الصرف</button>
+                </form>
+            </div>
+            <div class="card">
+                <h4>📜 سجل الصرف والمبيعات</h4>
+                <table>
+                    <!-- تم وضع عمود رقم الفاتورة هنا في مكانه الصحيح -->
+                    <thead><tr><th>رقم الفاتورة</th><th>التاريخ</th><th>الصنف</th><th>العميل</th><th>رقم التليفون</th><th>الكمية</th><th>الإجمالي</th><th>حذف</th></tr></thead>
+                    <tbody id="t-sale"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="emp" class="tab">
+            <div class="card">
+                <h4>➕ إضافة موظف جديد</h4>
+                <form id="f-emp" class="grid-form">
+                    <input type="text" id="e-name" placeholder="الاسم بالكامل" required>
+                    <input type="text" id="e-nid" placeholder="الرقم القومي (14 رقم)" maxlength="14" required>
+                    <input type="tel" id="e-phone" placeholder="رقم الهاتف" required>
+                    <input type="text" id="e-addr" placeholder="العنوان" required>
+                    <input type="text" id="e-role" placeholder="الوظيفة" required>
+                    <input type="number" id="e-sal" placeholder="الراتب الأساسي" min="0" required>
+                    <input type="number" id="e-abs" placeholder="أيام الغياب" value="0" min="0" max="30" required>
+                    <button type="submit" class="btn-blue">حفظ الموظف</button>
+                </form>
+            </div>
+            <div class="card">
+                <h4>👥 كشف الموظفين والرواتب</h4>
+                <table>
+                    <thead><tr><th>الموظف</th><th>بيانات التواصل</th><th>الوظيفة</th><th>الأساسي</th><th>الغياب</th><th>الخصم</th><th>الصافي</th><th>حذف</th></tr></thead>
+                    <tbody id="t-emp"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="backup" class="tab">
+            <div class="card">
+                <h4>💾 النسخ الاحتياطي</h4>
+                <button class="btn-blue" onclick="exportData()">⬇️ تحميل نسخة احتياطية</button>
+                <label class="btn-green file-btn">⬆️ استعادة نسخة<input type="file" accept=".json" onchange="importData(event)"></label>
+            </div>
+        </div>
+            </div>
+    
+    </div>
+
+    <script>
+        // --- 1. إدارة الشاشات والمصادقة ---
+        const newAccountView = document.getElementById('new-account-view');
+        const loginView = document.getElementById('login-view');
+        const indexView = document.getElementById('index-view');
+        const newPassInput = document.getElementById('new-password');
+        const loginPassInput = document.getElementById('login-password');
+
+        function checkAuthState() {
+            const account = localStorage.getItem('account');
+            const isLoggedIn = localStorage.getItem('mega_tech_auth') === 'yes_logged_in';
+
+            newAccountView.style.display = 'none';
+            loginView.style.display = 'none';
+            indexView.style.display = 'none';
+
+            if (!account) {
+                newAccountView.style.display = 'flex';
+            } else if (!isLoggedIn) {
+                loginView.style.display = 'flex';
+            } else {
+                indexView.style.display = 'flex';
+            }
+        }
+
+        function createAccount() {
+            let password = newPassInput.value;
+            if (password.trim() === '') {
+                alert('😎 M S T 😎: ❌ اكتب كلمة مرور ❌');
+                return;
+            }
+            localStorage.setItem('account', JSON.stringify({ password: password }));
+            alert('😎 M S T 😎: ✅ تم إنشاء كلمة المرور بنجاح ✅');
+            newPassInput.value = '';
+            checkAuthState();
+        }
+
+        function login() {
+            let p = loginPassInput.value;
+            let account = localStorage.getItem('account');
+            if (!account) {
+                checkAuthState();
+                return;
+            }
+            account = JSON.parse(account);
+            if (p === account.password) {
+                alert('😎 M S T 😎: ✅ تم تسجيل الدخول بنجاح ✅');
+                localStorage.setItem('mega_tech_auth', 'yes_logged_in');
+                loginPassInput.value = '';
+                checkAuthState();
+            } else {
+                alert('😎 M S T 😎: ❌ كلمة المرور غير صحيحة! ❌');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('mega_tech_auth');
+            checkAuthState();
+        }
+
+        newPassInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') createAccount();
+        });
+        loginPassInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+
+        checkAuthState();
+
+        // --- 2. إدارة المخازن والمبيعات والموظفين ---
+        document.getElementById('today').textContent = new Date().toLocaleDateString('ar-EG');
+
+        let inv = JSON.parse(localStorage.getItem('mt_inv')) || [
+            { name: 'لوحة تحكم', loc: 'مخزن السرداب', shelf: '88', qty: 7, price: 70 }
+        ];
+        let sales = JSON.parse(localStorage.getItem('mt_sales')) || [];
+        let lastInvoice = +localStorage.getItem('mt_inv_num') || 1000;
+        let emps = JSON.parse(localStorage.getItem('mt_emp')) || [
+            { name: 'م. أحمد محمود', nid: '29504120101234', phone: '01012345678', addr: 'القاهرة', role: 'مهندس', sal: 12000, abs: 1 }
+        ];
+
+        function showTab(id, el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-links li').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            el.classList.add('active');
+        }
+
+        function render() {
+            localStorage.setItem('mt_inv', JSON.stringify(inv));
+            localStorage.setItem('mt_sales', JSON.stringify(sales));
+            localStorage.setItem('mt_emp', JSON.stringify(emps));
+
+            const q = document.getElementById('q-inv').value.toLowerCase();
+            const tInv = document.getElementById('t-inv');
+            const sSel = document.getElementById('s-select');
+            const tLow = document.getElementById('t-low');
+            
+            tInv.innerHTML = '';
+            tLow.innerHTML = '';
+            sSel.innerHTML = '<option value="">اختر الصنف...</option>';
+
+            inv.forEach((x, i) => {
+                if (x.qty > 0) {
+                    sSel.innerHTML += `<option value="${i}">${x.name} (متاح: ${x.qty})</option>`;
+                }
+
+                if (x.qty <= 5) {
+                    tLow.innerHTML += `<tr><td><b>${x.name}</b></td><td>${x.loc}</td><td>${x.shelf}</td><td style="color:red"><b>${x.qty}</b></td></tr>`;
+                }
+
+                if (x.name.toLowerCase().includes(q) || x.shelf.includes(q)) {
+                    let st = x.qty === 0 
+                        ? '<span class="badge out">نفد</span>' 
+                        : (x.qty <= 5 ? '<span class="badge low">قارب على النفاد</span>' : '<span class="badge ok">متوفر</span>');
+
+                    tInv.innerHTML += `<tr>
+                        <td><b>${x.name}</b></td>
+                        <td>${x.loc}</td>
+                        <td>${x.shelf}</td>
+                        <td><b>${x.qty}</b></td>
+                        <td>${x.price} ج.م</td>
+                        <td>${x.qty * x.price} ج.م</td>
+                        <td>${st}</td>
+                        <td>
+                            <button class="btn-green btn-sm" onclick="modQty(${i},1)">+</button>
+                            <button class="btn-orange btn-sm" onclick="modQty(${i},-1)">-</button>
+                            <button class="btn-red btn-sm" onclick="delInv(${i})">حذف</button>
+                        </td>
+                    </tr>`;
+                }
+            });
+
+            const tSale = document.getElementById('t-sale');
+            tSale.innerHTML = '';
+            sales.forEach((s, i) => {
+                tSale.innerHTML += `<tr>
+                    <td><b>#${s.invNum || '-'}</b></td>
+                    <td>${s.date}</td>
+                    <td>${s.name}</td>
+                    <td>${s.client}</td>
+                    <td>${s.phone || '-'}</td>
+                    <td>${s.qty}</td>
+                    <td>${s.tot} ج.م</td>
+                    <td><button class="btn-red btn-sm" onclick="delSale(${i})">حذف</button></td>
+                </tr>`;
+            });
+
+            const tEmp = document.getElementById('t-emp');
+            tEmp.innerHTML = '';
+            let totSal = 0;
+            emps.forEach((e, i) => {
+                let ded = Math.round((e.sal / 30) * e.abs);
+                let net = e.sal - ded;
+                totSal += net;
+                tEmp.innerHTML += `<tr>
+                    <td><b>${e.name}</b><br><small>${e.nid}</small></td>
+                    <td>${e.phone}<br><small>${e.addr}</small></td>
+                    <td>${e.role}</td>
+                    <td>${e.sal} ج.م</td>
+                    <td>${e.abs} يوم <button class="btn-orange btn-sm" onclick="modAbs(${i},1)">+</button><button class="btn-green btn-sm" onclick="modAbs(${i},-1)">-</button></td>
+                    <td style="color:red">-${ded}</td>
+                    <td style="color:green"><b>${net} ج.م</b></td>
+                    <td><button class="btn-red btn-sm" onclick="emps.splice(${i},1);render()">حذف</button></td>
+                </tr>`;
+            });
+
+            document.getElementById('s-items').textContent = inv.length;
+            document.getElementById('s-val').textContent = inv.reduce((a, b) => a + (b.qty * b.price), 0) + ' ج.م';
+            document.getElementById('s-sales').textContent = sales.reduce((a, b) => a + b.tot, 0) + ' ج.م';
+            document.getElementById('s-sal').textContent = totSal + ' ج.م';
+        }
+
+        document.getElementById('f-inv').onsubmit = e => {
+            e.preventDefault();
+            inv.push({
+                name: document.getElementById('i-name').value,
+                loc: document.getElementById('i-loc').value,
+                shelf: document.getElementById('i-shelf').value,
+                qty: +document.getElementById('i-qty').value,
+                price: +document.getElementById('i-price').value
+            });
+            e.target.reset();
+            render();
+        };
+
+        document.getElementById('f-sale').onsubmit = e => {
+            e.preventDefault();
+            let idx = document.getElementById('s-select').value;
+            let q = +document.getElementById('s-qty').value;
+            if (idx === '' || q > inv[idx].qty) return alert('الكمية غير متاحة!');
+            inv[idx].qty -= q;
+            
+            lastInvoice++;
+            localStorage.setItem('mt_inv_num', lastInvoice);
+
+            sales.unshift({
+                invNum: lastInvoice,
+                date: new Date().toLocaleDateString('ar-EG'),
+                name: inv[idx].name,
+                client: document.getElementById('s-client').value,
+                phone: document.getElementById('s-phone').value,
+                qty: q,
+                tot: q * inv[idx].price
+            });
+
+            e.target.reset();
+            render();
+        };
+
+        document.getElementById('f-emp').onsubmit = e => {
+            e.preventDefault();
+            emps.push({
+                name: document.getElementById('e-name').value,
+                nid: document.getElementById('e-nid').value,
+                phone: document.getElementById('e-phone').value,
+                addr: document.getElementById('e-addr').value,
+                role: document.getElementById('e-role').value,
+                sal: +document.getElementById('e-sal').value,
+                abs: +document.getElementById('e-abs').value
+            });
+            e.target.reset();
+            render();
+        };
+
+        function modQty(i, v) {
+            if (inv[i].qty + v >= 0) {
+                inv[i].qty += v;
+                render();
+            }
+        }
+
+        function delInv(i) {
+            if (confirm('حذف الصنف؟')) {
+                inv.splice(i, 1);
+                render();
+            }
+        }
+
+        function delSale(i) {
+            if (confirm('هل أنت متأكد من حذف هذه الفاتورة؟')) {
+                sales.splice(i, 1);
+                render();
+            }
+        }
+
+        function modAbs(i, v) {
+            if (emps[i].abs + v >= 0 && emps[i].abs + v <= 30) {
+                emps[i].abs += v;
+                render();
+            }
+        }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify({ inv, sales, emps })], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'MegaTech_Backup.json';
+            a.click();
+        }
+
+        function importData(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const r = new FileReader();
+            r.onload = ev => {
+                const d = JSON.parse(ev.target.result);
+                if (d.inv) inv = d.inv;
+                if (d.sales) sales = d.sales;
+                if (d.emps) emps = d.emps;
+                render();
+                alert('تمت الاستعادة بنجاح!');
+            };
+            r.readAsText(file);
+        }
+
+        // function toggleMenu() {
+        //     document.querySelector('.nav-links').classList.toggle('show');
+        // }
+
+        // function closeMenu() {
+        //     document.querySelector('.nav-links').classList.remove('show');
+        // }
+        
+        function toggleMenu() {
+            document.querySelector('.nav-links').classList.toggle('show');
+            document.querySelector('.menu-toggle').classList.toggle('active');
+        }
+        function closeMenu() {
+            document.querySelector('.nav-links').classList.remove('show');
+            document.querySelector('.menu-toggle').classList.remove('active');
+        }
+
+
+        render();
+    </script>
+</body>
+</html>
